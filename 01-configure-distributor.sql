@@ -21,6 +21,10 @@ use master;
 -- todo: check that agent is running, fail otherwise
 -- todo: check that the sp_addserver contains the local server, fail otherwise
 
+--
+-- Configure the Server as a Replication Distributor 
+--
+
 declare @tmptblDistributor TABLE
 (
   IsInstalled bit, 
@@ -47,13 +51,16 @@ from
 
 if( @IsInstalled <> @True ) begin
 
-	-- add a local distributor
 	print 'Configuring ' + @@servername + ' as a Replication Distributor...'
-	print ''
+	
 	declare @distributorName sysname = 'distributor';
 	exec sp_adddistributor @distributor = @@servername;
 
 end;
+
+--
+-- Add the Distributor Database
+--
 
 if( @IsDistributionDatabaseInstalled <> @True ) begin 
 	
@@ -63,12 +70,20 @@ if( @IsDistributionDatabaseInstalled <> @True ) begin
 	reconfigure; 
 end;
 
+--
+-- Configure this Server as Publisher
+--
+
 if( @IsDistributionPublisher <> @True ) begin 
 	
 	-- configure as publisher
 	exec sp_adddistpublisher @publisher = @@servername, @distribution_db = @distributionDatabaseName
 
 end;
+
+--
+-- Configure $(DatabaseName) for Replication
+--
 
 declare @tmptblReplicatedDatabase table (
 	DatabaseName sysname,
