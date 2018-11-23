@@ -1,3 +1,12 @@
+/* 
+Enable Transactional Replication on $(DatabaseName).  
+The aim of this script is that turns the Database into one that can replicate with 
+an Azure SQL Database by: 
+
+1) enabling replication on the server 
+2) enabling replication on the database 
+*/
+
 :setvar DatabaseName ISMIS
 
 set nocount on;
@@ -5,6 +14,7 @@ set xact_abort on;
 
 declare @True bit = 1;
 declare @distributionDatabaseName sysname = 'distribution'
+declare @databaseToReplicate sysname = '$(DatabaseName)';
 
 use master;
 
@@ -77,10 +87,11 @@ declare @IsEnabledForTransactionalReplication bit = (
 
 if( @IsEnabledForTransactionalReplication <> @True ) begin
 
-	print 'Enabling Transactional Replication on $(DatabaseName)...'
-	exec sp_replicationdboption @dbname = '$(DatabaseName)', @optname = 'publish', @value = 'true'
+	print 'Enabling Transactional Replication on ' + @databaseToReplicate + '...'
+	exec sp_replicationdboption @dbname = @databaseToReplicate, @optname = 'publish', @value = 'true'
 
 end;
+
 
 -- select @@servername
 
