@@ -25,11 +25,13 @@ use master;
 -- In order for Replication the SQL Agent must be running
 
 if not exists( 
+	select * from master.dbo.sysprocesses 
+    where program_name = N'SQLAgent - Generic Refresher' ) begin
 
-SELECT *             FROM master.dbo.sysprocesses 
-             WHERE program_name = N'SQLAgent - Generic Refresher'
+	throw 50000, 'SQL Server Agent must be running in order to enable replication', 1;
 
--- todo: check that agent is running, fail otherwise
+end;
+
 -- todo: check that the sp_addserver contains the local server, fail otherwise
 
 --
