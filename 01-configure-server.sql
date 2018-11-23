@@ -1,22 +1,16 @@
 /* 
 
-Summary: Enable Transactional Replication on $(DatabaseName).  
-
-The aim of this script is that turns the Database into one that can replicate with 
-an Azure SQL Database by enabling replication on the server and the database.
+Summary: Configure this server for Replication.
 
 Note: In order to run this script, SQL Server Agent must be running.
 
 */
-
-:setvar DatabaseName ISMIS
 
 set nocount on;
 set xact_abort on;
 
 declare @True bit = 1;
 declare @distributionDatabaseName sysname = 'distribution'
-declare @databaseToReplicate sysname = '$(DatabaseName)';
 
 use master;
 
@@ -108,31 +102,5 @@ if( @IsDistributionPublisher <> @True ) begin
 	
 	-- configure as publisher
 	exec sp_adddistpublisher @publisher = @@servername, @distribution_db = @distributionDatabaseName
-
-end;
-
---
--- Configure $(DatabaseName) for Replication
---
-
-declare @tmptblReplicatedDatabase table (
-	DatabaseName sysname,
-	DatabaseId int,
-	IsEnabledForTransactionalReplication bit,
-	IsEnabledForMergeReplication bit,
-	IsDbOwner bit,
-	IsDatabaseReadOnly bit
-);
-
-insert into @tmptblReplicatedDatabase exec sp_helpreplicationdboption;
-
-declare @IsEnabledForTransactionalReplication bit = (
-	select IsEnabledForTransactionalReplication from @tmptblReplicatedDatabase
-);
-
-if( @IsEnabledForTransactionalReplication <> @True ) begin
-
-	print 'Enabling Transactional Replication on ' + @databaseToReplicate + '...'
-	exec sp_replicationdboption @dbname = @databaseToReplicate, @optname = 'publish', @value = 'true'
 
 end;
