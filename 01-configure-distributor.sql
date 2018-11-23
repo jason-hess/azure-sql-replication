@@ -1,6 +1,8 @@
 set nocount on;
 set xact_abort on;
 
+declare @True bit = 1;
+
 use master;
 
 declare @tmptblDistributor TABLE
@@ -10,7 +12,7 @@ declare @tmptblDistributor TABLE
   IsDistributionDatabaseInstalled bit,
   IsDistributionPublisher bit,
   HasRemoteDistributionPublisher bit
-)
+);
 
 declare @cSuccessReturnValue int = 0;
 insert into @tmptblDistributor exec sp_get_distributor;
@@ -27,3 +29,11 @@ select
 	@HasRemoteDistributionPublisher = HasRemoteDistributionPublisher
 from
 	@tmptblDistributor;
+
+if( @IsInstalled <> @True ) begin
+
+	-- add a local distributor
+	declare @distributorName sysname = 'distributor';
+	exec sp_adddistributor @distributorName;
+
+end;
