@@ -1,10 +1,12 @@
 /* 
-Enable Transactional Replication on $(DatabaseName).  
-The aim of this script is that turns the Database into one that can replicate with 
-an Azure SQL Database by: 
 
-1) enabling replication on the server 
-2) enabling replication on the database 
+Summary: Enable Transactional Replication on $(DatabaseName).  
+
+The aim of this script is that turns the Database into one that can replicate with 
+an Azure SQL Database by enabling replication on the server and the database.
+
+Note: In order to run this script, SQL Server Agent must be running.
+
 */
 
 :setvar DatabaseName ISMIS
@@ -17,6 +19,15 @@ declare @distributionDatabaseName sysname = 'distribution'
 declare @databaseToReplicate sysname = '$(DatabaseName)';
 
 use master;
+
+--
+-- Ensure SQL Server Agent is Running
+-- In order for Replication the SQL Agent must be running
+
+if not exists( 
+
+SELECT *             FROM master.dbo.sysprocesses 
+             WHERE program_name = N'SQLAgent - Generic Refresher'
 
 -- todo: check that agent is running, fail otherwise
 -- todo: check that the sp_addserver contains the local server, fail otherwise
