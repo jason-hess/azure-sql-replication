@@ -14,7 +14,6 @@ declare @tmptblDistributor TABLE
   HasRemoteDistributionPublisher bit
 );
 
-declare @cSuccessReturnValue int = 0;
 insert into @tmptblDistributor exec sp_get_distributor;
 
 declare @IsInstalled bit;
