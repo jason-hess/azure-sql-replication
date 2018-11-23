@@ -22,7 +22,9 @@ use master;
 
 --
 -- Ensure SQL Server Agent is Running
--- In order for Replication the SQL Agent must be running
+--
+
+-- Note: To configure replication the SQL Server Agent must be running
 
 if not exists( 
 	select * from master.dbo.sysprocesses 
@@ -32,7 +34,22 @@ if not exists(
 
 end;
 
--- todo: check that the sp_addserver contains the local server, fail otherwise
+-- 
+-- Ensure the Server exists in metadata
+--
+
+-- Note: Sometimes when configuring replication the metadata can get out of correct state.
+--       This is here just to fix the possibility of the server name not being in sys.servers.
+
+if not exists( select * from sys.sysservers where srvname = @@servername ) begin
+
+	-- Note: To test this section of code, run: sp_dropserver @@servername
+
+	print 'Correcting sys.sysservers';
+
+	exec sp_addserver @server = @@servername, @local = 'local';
+
+end;
 
 --
 -- Configure the Server as a Replication Distributor 
@@ -128,6 +145,8 @@ end;
 -- sp_helpserver
 
 -- exec sp_dropdistributor @no_checks=1,@ignore_distributor=1
+
+-- sp_dropserver @@servername
 
 -- sp_addserver @server = @@servername, @local = 'local'
 
