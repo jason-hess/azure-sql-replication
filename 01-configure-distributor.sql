@@ -50,6 +50,9 @@ if( @IsDistributionDatabaseInstalled <> @True ) begin
 
 end;
 
+if( @IsDistributionPublisher <> @True ) begin 
+	
+end;
 
 -- select @@servername
 
