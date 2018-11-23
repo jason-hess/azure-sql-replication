@@ -136,18 +136,3 @@ if( @IsEnabledForTransactionalReplication <> @True ) begin
 	exec sp_replicationdboption @dbname = @databaseToReplicate, @optname = 'publish', @value = 'true'
 
 end;
-
-
--- select @@servername
-
--- select * from sys.sysservers
-
--- sp_helpserver
-
--- exec sp_dropdistributor @no_checks=1,@ignore_distributor=1
-
--- sp_dropserver @@servername
-
--- sp_addserver @server = @@servername, @local = 'local'
-
--- SELECT serverproperty('ServerName') 
