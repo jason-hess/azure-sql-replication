@@ -38,7 +38,7 @@ from
 if( @IsInstalled <> @True ) begin
 
 	-- add a local distributor
-	print 'Configuring this server as a Replication Distributor...'
+	print 'Configuring ' + @@servername + ' as a Replication Distributor...'
 	print ''
 	declare @distributorName sysname = 'distributor';
 	exec sp_adddistributor @distributor = @@servername;
@@ -48,8 +48,9 @@ end;
 if( @IsDistributionDatabaseInstalled <> @True ) begin 
 	
 	-- add local distribution database
-	exec sp_adddistributiondb @database = @distributionDatabaseName
-
+	exec sp_adddistributiondb @database = @distributionDatabaseName;
+	
+	reconfigure; 
 end;
 
 if( @IsDistributionPublisher <> @True ) begin 
