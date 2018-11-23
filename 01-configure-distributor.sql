@@ -1,4 +1,5 @@
 set nocount on;
+set xact_abort on;
 
 use master;
 
@@ -11,9 +12,8 @@ declare @tmptblDistributor TABLE
   HasRemoteDistributionPublisher bit
 )
 
-declare @returnValue int;
-insert into @tmptblDistributor exec @returnValue = sp_get_distributor;
--- check error
+declare @cSuccessReturnValue int = 0;
+insert into @tmptblDistributor exec sp_get_distributor;
 
 declare @IsInstalled bit;
 declare @IsDistributionDatabaseInstalled bit;
