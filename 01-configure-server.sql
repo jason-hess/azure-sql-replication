@@ -24,7 +24,7 @@ use master;
 
 if not exists( 
 	select * from master.dbo.sysprocesses 
-    where program_name = N'SQLAgent - Generic Refresher' ) begin
+	where program_name = N'SQLAgent - Generic Refresher' ) begin
 
 	throw 50000, 'SQL Server Agent must be running in order to enable replication', 1;
 
