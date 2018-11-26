@@ -6,11 +6,13 @@ Note: In order to run this script, SQL Server Agent must be running.
 
 */
 
+:setvar DistributionDatabase distribution
+
 set nocount on;
 set xact_abort on;
 
 declare @True bit = 1;
-declare @distributionDatabaseName sysname = 'distribution'
+declare @distributionDatabaseName sysname = '$(DistributionDatabase)'
 
 use master;
 
