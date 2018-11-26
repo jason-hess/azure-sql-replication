@@ -62,20 +62,24 @@ declare @tmptblDistributor TABLE
 
 insert into @tmptblDistributor exec sp_get_distributor;
 
-declare @IsInstalled bit;
+declare @IsRegistered bit;
 declare @IsDistributionDatabaseInstalled bit;
 declare @IsDistributionPublisher bit;
 declare @HasRemoteDistributionPublisher bit;
 
 select 
-	@IsInstalled = IsInstalled,
+	@IsRegistered = IsInstalled,
 	@IsDistributionDatabaseInstalled = IsDistributionDatabaseInstalled,
 	@IsDistributionPublisher = IsDistributionPublisher,
 	@HasRemoteDistributionPublisher = HasRemoteDistributionPublisher
 from
 	@tmptblDistributor;
 
-if( @IsInstalled <> @True ) begin
+---
+--- Register this server as a Distributor
+---
+
+if( @IsRegistered <> @True ) begin
 
 	print 'Configuring ' + @@servername + ' as a Replication Distributor...'
 	
@@ -85,7 +89,7 @@ if( @IsInstalled <> @True ) begin
 end;
 
 --
--- Add the Distributor Database
+-- Add the Distribution Database
 --
 
 if( @IsDistributionDatabaseInstalled <> @True ) begin 
