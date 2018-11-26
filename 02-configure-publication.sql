@@ -1,6 +1,6 @@
 /* 
 
-Summary: Enable Transactional Replication on $(DatabaseToReplicate).  
+Summary: Enable Transactional Replication on $(DatabaseToPublish).  
 
 The aim of this script is that turns the Database into one that can replicate with 
 an Azure SQL Database by enabling replication on the database.
@@ -9,22 +9,22 @@ Note: This script assumes 01-configure-server.sql has been run beforehand.
 
 */
 
-:setvar DatabaseToReplicate <DatabaseToReplicate, sysname, ISMIS>
+:setvar DatabaseToPublish <DatabaseToPublish, sysname, ISMIS>
 
 set nocount on;
 set xact_abort on;
 
 declare @True bit = 1;
-declare @databaseToReplicate sysname = '$(DatabaseToReplicate)';
+declare @DatabaseToPublish sysname = '$(DatabaseToPublish)';
 
 use master;
 
 --
--- Configure $(DatabaseToReplicate) for Replication
+-- Configure $(DatabaseToPublish) for Replication
 --
 
 declare @tmptblReplicatedDatabase table (
-	DatabaseToReplicate sysname,
+	DatabaseToPublish sysname,
 	DatabaseId int,
 	IsEnabledForTransactionalReplication bit,
 	IsEnabledForMergeReplication bit,
@@ -40,18 +40,22 @@ declare @IsEnabledForTransactionalReplication bit = (
 
 if( @IsEnabledForTransactionalReplication <> @True ) begin
 
-	print 'Enabling Transactional Replication on ' + @databaseToReplicate + '...'
-	exec sp_replicationdboption @dbname = @databaseToReplicate, @optname = 'publish', @value = 'true'
+	print 'Enabling Transactional Replication on ' + @DatabaseToPublish + '...'
+	exec sp_replicationdboption @dbname = @DatabaseToPublish, @optname = 'publish', @value = 'true'
 
 end;
 
--- Execute sp_addlogreader_agent to create the agent job. 
-EXEC sp_addlogreader_agent 
-	@job_login = @login, 
-	@job_password = @password,
-	-- Explicitly specify the use of Windows Integrated Authentication (default) 
-	-- when connecting to the Publisher.
-	@publisher_security_mode = 1;
+--
+-- Configure Log Reader Agent
+--
+
+-- Note: This requires a service account that is passed into SqlPackage.exe or SQLCMD.EXE
+
+declare @WindowsIntegratedAuthentication bit = 1;
+exec sp_addlogreader_agent 
+	@job_login = '$(AgentUsername)', 
+	@job_password = '$(AgentPassword)',
+	@publisher_security_mode = @WindowsIntegratedAuthentication;
 
 -- Create a new transactional publication with the required properties. 
 EXEC sp_addpublication 
