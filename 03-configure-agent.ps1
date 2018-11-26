@@ -20,4 +20,4 @@ $agentPasswordAsNotSecureString = [System.Runtime.InteropServices.Marshal]::PtrT
 
 $sqlcmdExe = 'C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\SQLCMD.exe'
 $useTrustedConnection = '-E'
-& $sqlcmdExe -v AgentUsername=$agentUsername -v AgentPassword=$agentPasswordAsNotSecureString -i "$scriptRoot\03-configure-agent.ps1" $useTrustedConnection -S .
+& $sqlcmdExe -v AgentUsername=$agentUsername -v AgentPassword=$agentPasswordAsNotSecureString -i "$scriptRoot\03-configure-agent.sql" $useTrustedConnection -S .

@@ -9,7 +9,7 @@ Note: This script assumes 01-configure-server.sql has been run beforehand.
 
 */
 
-:setvar DatabaseToReplicate <DatabaseToReplicate, sysname, ISMIS>
+:setvar DatabaseToReplicate ISMIS
 
 set nocount on;
 set xact_abort on;
@@ -17,13 +17,16 @@ set xact_abort on;
 declare @True bit = 1;
 declare @databaseToReplicate sysname = '$(DatabaseToReplicate)';
 
-use master;
+use $(DatabaseToReplicate);
 
--- Create a new transactional publication with the required properties. 
-EXEC sp_addpublication 
-	@publication = @publication, 
-	@status = N'active',
-	@allow_push = N'true',
-	@allow_pull = N'true',
-	@independent_agent = N'true';
-
+exec sp_addpublication 
+	@publication = @databaseToReplicate, 
+	@sync_method = N'concurrent', 
+	@compress_snapshot = N'true', 
+	@repl_freq = N'continuous', 
+	@status = N'active', 
+	@independent_agent = N'true', 
+	@immediate_sync = N'false', 
+	@allow_sync_tran = N'false', 
+	@replicate_ddl = 1
+GO
